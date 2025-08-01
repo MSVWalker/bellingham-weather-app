@@ -15,7 +15,7 @@ weather_icons = {
 }
 
 def show_current_weather():
-    # Bellingham coordinates
+    # Bellingham, WA coordinates
     lat, lon = 48.7544, -122.4780
 
     url = (
@@ -31,23 +31,27 @@ def show_current_weather():
         return
 
     data = response.json()
-    dates = data["daily"]["time"][:3]
-    temps_min = data["daily"]["temperature_2m_min"][:3]
-    temps_max = data["daily"]["temperature_2m_max"][:3]
-    codes = data["daily"]["weathercode"][:3]
 
-    st.markdown("### 🌤️ 3-Day Forecast")
+    # Yesterday + Next 3 Days
+    dates = data["daily"]["time"][:4]
+    temps_min = data["daily"]["temperature_2m_min"][:4]
+    temps_max = data["daily"]["temperature_2m_max"][:4]
+    codes = data["daily"]["weathercode"][:4]
 
-    cols = st.columns(3)
-    for i in range(3):
+    st.markdown("### 🌤️ Forecast: Yesterday + Next 3 Days")
+    cols = st.columns(4, gap="small")
+
+    for i in range(4):
         with cols[i]:
             date = datetime.fromisoformat(dates[i]).strftime("%a %b %d")
             icon = weather_icons.get(codes[i], "❓")
-
             high_f = temps_max[i] * 9 / 5 + 32
             low_f = temps_min[i] * 9 / 5 + 32
 
-            st.markdown(f"#### {icon}")
-            st.markdown(f"**{date}**")
-            st.markdown(f"High: **{high_f:.0f}°F**")
-            st.markdown(f"Low: **{low_f:.0f}°F**")
+            with st.container():
+                st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+                st.markdown(f"#### {icon}")
+                st.markdown(f"**{date}**")
+                st.markdown(f"<span style='font-size: 14px;'>High: {high_f:.0f}°F</span>", unsafe_allow_html=True)
+                st.markdown(f"<span style='font-size: 14px;'>Low: {low_f:.0f}°F</span>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
