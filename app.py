@@ -1,18 +1,18 @@
+# app.py
+
 import streamlit as st
 import duckdb
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from src.plots.heatmap_streaks import plot_over_80_streaks
 from src.plots.anomalies_scatter import plot_anomaly_scatter
 from src.plots.top10_bar import plot_top10_hottest_years
 from src.plots.record_calendar import plot_record_calendar
 
-#test
-
+# --- Setup ---
 st.set_page_config(page_title="Bellingham Weather Dashboard", layout="wide")
-
-# --- Header ---
-st.markdown("<h1 style='text-align: center;'>🌤️ Bellingham, WA Weather Trends</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size:18px;'>Visualizing daily weather data from 1972 to today</p>", unsafe_allow_html=True)
+st.title("🌤️ Bellingham, WA Weather Dashboard")
 
 # --- Load Data ---
 con = duckdb.connect("data/weather.duckdb")
@@ -20,50 +20,35 @@ df = con.execute("SELECT * FROM weather_data ORDER BY time").fetchdf()
 con.close()
 df['time'] = pd.to_datetime(df['time'])
 
-# --- Quick Metrics ---
-latest = df.iloc[-1]
-col1, col2, col3 = st.columns(3)
-col1.metric("Latest Date", latest['time'].strftime("%b %d, %Y"))
-col2.metric("Temp Avg (°C)", f"{latest['temp_avg_c']:.1f}")
-col3.metric("Precip (mm)", f"{latest['precip_mm']:.1f}")
+# --- Visuals Layout ---
+st.markdown("---")
+st.header("📈 Weather Visualizations")
+
+figures = []
+
+# Add Daily Average Temperature line chart
+fig1, ax1 = plt.subplots(figsize=(6, 3.5))
+df.set_index("time")["temp_avg_c"].plot(ax=ax1, title="Daily Avg Temp (°C)")
+figures.append(fig1)
+
+# Add Monthly Average Temperature bar chart
+monthly = df.resample("M", on="time")["temp_avg_c"].mean()
+fig2, ax2 = plt.subplots(figsize=(6, 3.5))
+monthly.plot(kind='bar', ax=ax2, title="Monthly Avg Temp (°C)")
+fig2.tight_layout()
+figures.append(fig2)
+
+# Add custom visualizations
+figures.append(plot_over_80_streaks(df))
+figures.append(plot_anomaly_scatter(df))
+figures.append(plot_top10_hottest_years(df))
+figures.append(plot_record_calendar(df))
+
+# Display all figures in 3 columns
+cols = st.columns(3)
+for i, fig in enumerate(figures):
+    with cols[i % 3]:
+        st.pyplot(fig)
 
 st.markdown("---")
-
-# --- Trends Section ---
-st.header("📈 Temperature Trends")
-
-col1, col2 = st.columns(2)
-with col1:
-    st.subheader("Daily Avg Temp")
-    st.line_chart(df.set_index("time")["temp_avg_c"])
-
-with col2:
-    st.subheader("Monthly Avg Temp")
-    monthly = df.resample("M", on="time")["temp_avg_c"].mean()
-    st.bar_chart(monthly)
-
-st.markdown("---")
-
-# --- Custom Matplotlib Visuals ---
-st.header("📊 Historical Visualizations")
-
-with st.spinner("Loading charts..."):
-    charts = []
-
-    # Load each chart
-    charts.append(("Over 80°F Streaks", plot_over_80_streaks(df)))
-    charts.append(("Anomaly Scatterplot", plot_anomaly_scatter(df)))
-    charts.append(("Top 10 Hottest Years", plot_top10_hottest_years(df)))
-    charts.append(("Record Calendar", plot_record_calendar(df)))
-
-    # Display in rows of 3 columns
-    for i in range(0, len(charts), 3):
-        cols = st.columns(3)
-        for j in range(3):
-            if i + j < len(charts):
-                with cols[j]:
-                    st.subheader(charts[i + j][0])
-                    st.pyplot(charts[i + j][1])
-
-st.markdown("---")
-st.caption("Data from Meteostat | Built with Streamlit, DuckDB, Matplotlib, and Python.")
+st.caption("Data from Meteostat. Built with DuckDB, pandas, seaborn, matplotlib, and Streamlit.")
