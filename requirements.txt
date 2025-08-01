@@ -1,4 +1,5 @@
 streamlit
-duckdb
 pandas
-meteostat
+duckdb
+matplotlib
+seaborn
