@@ -9,6 +9,8 @@ from src.plots.heatmap_streaks import plot_over_80_streaks
 from src.plots.anomalies_scatter import plot_anomaly_scatter
 from src.plots.top10_bar import plot_top10_hottest_years
 from src.plots.record_calendar import plot_record_calendar
+from src.plots.monthly_avg_temp import plot_monthly_avg_temp
+from src.plots.daily_avg_temp import plot_daily_avg_temp
 
 # --- Setup ---
 st.set_page_config(page_title="Bellingham Weather Dashboard", layout="wide")
@@ -26,19 +28,9 @@ st.header("📈 Weather Visualizations")
 
 figures = []
 
-# Add Daily Average Temperature line chart
-fig1, ax1 = plt.subplots(figsize=(6, 3.5))
-df.set_index("time")["temp_avg_c"].plot(ax=ax1, title="Daily Avg Temp (°C)")
-figures.append(fig1)
-
-# Add Monthly Average Temperature bar chart
-monthly = df.resample("M", on="time")["temp_avg_c"].mean()
-fig2, ax2 = plt.subplots(figsize=(6, 3.5))
-monthly.plot(kind='bar', ax=ax2, title="Monthly Avg Temp (°C)")
-fig2.tight_layout()
-figures.append(fig2)
-
 # Add custom visualizations
+figures.append(plot_daily_avg_temp(df))
+figures.append(plot_monthly_avg_temp(df))
 figures.append(plot_over_80_streaks(df))
 figures.append(plot_anomaly_scatter(df))
 figures.append(plot_top10_hottest_years(df))
