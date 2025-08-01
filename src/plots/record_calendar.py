@@ -40,8 +40,9 @@ def plot_record_calendar(df):
 
     record_df = pd.DataFrame(records)
 
-    # --- Use all years from 2015 to 2025 ---
-    all_years = list(range(2015, 2026))
+    # --- Use all years from 2015 to current year ---
+    current_year = datetime.today().year
+    all_years = list(range(2015, current_year + 1))
     record_df = record_df[record_df['year'].isin(all_years)]
 
     # --- Layout Settings ---
@@ -134,6 +135,6 @@ def plot_record_calendar(df):
         ax.text(x_offset + 3.5 * (cell_size + cell_gap), -1.2, str(year),
                 ha='center', va='bottom', fontsize=12)
 
-    plt.suptitle("Record-Breaking Daily Highs (2015–2025)", fontsize=11, y=1.05)
+    plt.suptitle("Record-Breaking Daily Highs (2015–Present)", fontsize=11, y=1.05)
     plt.axis('off')
     return fig
