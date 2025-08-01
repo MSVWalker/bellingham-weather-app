@@ -2,9 +2,11 @@ import streamlit as st
 import duckdb
 import pandas as pd
 from src.plots.heatmap_streaks import plot_over_80_streaks
-# from src.plots.anomalies_scatter import plot_anomaly_scatter
-# from src.plots.top10_bar import plot_top10_hottest_years
-# from src.plots.record_calendar import plot_record_calendar
+from src.plots.heatmap_streaks import plot_over_80_streaks
+from src.plots.anomalies_scatter import plot_anomaly_scatter
+from src.plots.top10_bar import plot_top10_hottest_years
+from src.plots.record_calendar import plot_record_calendar
+
 
 # --- Setup ---
 st.set_page_config(page_title="Bellingham Weather Dashboard", layout="wide")
@@ -35,15 +37,14 @@ with st.spinner("Loading charts..."):
     fig1 = plot_over_80_streaks(df)
     st.pyplot(fig1)
 
-    # Uncomment these as you modularize them:
-    # fig2 = plot_anomaly_scatter(df)
-    # st.pyplot(fig2)
+    fig2 = plot_anomaly_scatter(df)
+    st.pyplot(fig2)
 
-    # fig3 = plot_top10_hottest_years(df)
-    # st.pyplot(fig3)
+    fig3 = plot_top10_hottest_years(df)
+    st.pyplot(fig3)
 
-    # fig4 = plot_record_calendar(df)
-    # st.pyplot(fig4)
+    fig4 = plot_record_calendar(df)
+    st.pyplot(fig4)
 
 st.markdown("---")
 st.caption("Data from Meteostat. Visuals built with DuckDB, pandas, seaborn, matplotlib, and Streamlit.")
