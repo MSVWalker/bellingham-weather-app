@@ -6,6 +6,8 @@ from src.plots.anomalies_scatter import plot_anomaly_scatter
 from src.plots.top10_bar import plot_top10_hottest_years
 from src.plots.record_calendar import plot_record_calendar
 
+#test
+
 st.set_page_config(page_title="Bellingham Weather Dashboard", layout="wide")
 
 # --- Header ---
