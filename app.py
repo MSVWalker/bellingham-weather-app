@@ -11,6 +11,7 @@ from src.plots.top10_bar import plot_top10_hottest_years
 from src.plots.record_calendar import plot_record_calendar
 from src.plots.monthly_avg_temp import plot_monthly_avg_temp
 from src.plots.yearly_avg_temp import plot_yearly_avg_temp
+from src.features.on_this_day import show_on_this_day
 
 
 # --- Setup ---
@@ -42,6 +43,9 @@ cols = st.columns(3)
 for i, fig in enumerate(figures):
     with cols[i % 3]:
         st.pyplot(fig)
+
+st.markdown("---")
+show_on_this_day(df)
 
 st.markdown("---")
 st.caption("Data from Meteostat. Built with DuckDB, pandas, seaborn, matplotlib, and Streamlit.")
