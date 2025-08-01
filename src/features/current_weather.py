@@ -1,32 +1,49 @@
-# src/features/current_weather.py
+# src/features/forecast_box.py
 
 import streamlit as st
-from meteostat import Point, Hourly
-from datetime import datetime, timedelta
+import requests
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-def show_current_weather():
-    location = Point(48.7544, -122.4780)  # Bellingham, WA
-    now = datetime.now()
-    start = now - timedelta(hours=2)
+# Emoji map for Open-Meteo's weather codes
+weather_icons = {
+    0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+    45: "🌫️", 48: "🌫️", 51: "🌦️", 53: "🌦️", 55: "🌦️",
+    56: "🌧️", 57: "🌧️", 61: "🌧️", 63: "🌧️", 65: "🌧️",
+    66: "🌧️", 67: "🌧️", 71: "🌨️", 73: "🌨️", 75: "❄️",
+    80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️"
+}
 
-    try:
-        data = Hourly(location, start, now).fetch()
+def show_forecast():
+    # Bellingham coordinates
+    lat, lon = 48.7544, -122.4780
 
-        if data.empty:
-            st.warning("⚠️ No recent weather data available.")
-            return
+    url = (
+        "https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}&longitude={lon}"
+        "&daily=temperature_2m_min,temperature_2m_max,weathercode"
+        "&timezone=America%2FLos_Angeles"
+    )
 
-        latest = data.iloc[-1]
-        temp_c = latest['temp']
-        temp_f = temp_c * 9 / 5 + 32
-        wind = latest.get('wspd', None)
-        humidity = latest.get('rhum', None)
+    response = requests.get(url)
+    if response.status_code != 200:
+        st.error("⚠️ Failed to fetch forecast data.")
+        return
 
-        st.markdown(f"### 🌡️ Current Temperature: **{temp_f:.1f}°F**")
-        st.markdown(f"""
-        **Conditions:**  
-        - 💨 Wind: {wind} km/h  
-        - 💧 Humidity: {humidity}%  
-        """)
-    except Exception as e:
-        st.error(f"❌ Failed to fetch current weather: {e}")
+    data = response.json()
+    dates = data["daily"]["time"][:3]
+    temps_min = data["daily"]["temperature_2m_min"][:3]
+    temps_max = data["daily"]["temperature_2m_max"][:3]
+    codes = data["daily"]["weathercode"][:3]
+
+    st.markdown("### 🌤️ 3-Day Forecast")
+
+    cols = st.columns(3)
+    for i in range(3):
+        with cols[i]:
+            date = datetime.fromisoformat(dates[i]).strftime("%a %b %d")
+            icon = weather_icons.get(codes[i], "❓")
+            st.markdown(f"#### {icon}")
+            st.markdown(f"**{date}**")
+            st.markdown(f"High: **{temps_max[i]:.0f}°F**")
+            st.markdown(f"Low: **{temps_min[i]:.0f}°F**")

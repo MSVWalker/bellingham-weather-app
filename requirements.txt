@@ -4,3 +4,4 @@ duckdb
 matplotlib
 seaborn
 meteostat
+requests
