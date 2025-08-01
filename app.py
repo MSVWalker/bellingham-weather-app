@@ -44,21 +44,26 @@ with col2:
 
 st.markdown("---")
 
-# --- Historical Visuals ---
-st.header("🧊 Historical Heat & Anomalies")
+# --- Custom Matplotlib Visuals ---
+st.header("📊 Historical Visualizations")
 
-with st.spinner("Loading visuals..."):
-    st.subheader("☀️ Longest Streaks Over 80°F")
-    st.pyplot(plot_over_80_streaks(df))
+with st.spinner("Loading charts..."):
+    charts = []
 
-    st.subheader("📉 Temperature Anomalies")
-    st.pyplot(plot_anomaly_scatter(df))
+    # Load each chart
+    charts.append(("Over 80°F Streaks", plot_over_80_streaks(df)))
+    charts.append(("Anomaly Scatterplot", plot_anomaly_scatter(df)))
+    charts.append(("Top 10 Hottest Years", plot_top10_hottest_years(df)))
+    charts.append(("Record Calendar", plot_record_calendar(df)))
 
-    st.subheader("🔥 Top 10 Hottest Years")
-    st.pyplot(plot_top10_hottest_years(df))
-
-    st.subheader("🗓️ Calendar of Record Highs")
-    st.pyplot(plot_record_calendar(df))
+    # Display in rows of 3 columns
+    for i in range(0, len(charts), 3):
+        cols = st.columns(3)
+        for j in range(3):
+            if i + j < len(charts):
+                with cols[j]:
+                    st.subheader(charts[i + j][0])
+                    st.pyplot(charts[i + j][1])
 
 st.markdown("---")
 st.caption("Data from Meteostat | Built with Streamlit, DuckDB, Matplotlib, and Python.")
