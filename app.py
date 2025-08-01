@@ -12,6 +12,7 @@ from src.plots.record_calendar import plot_record_calendar
 from src.plots.monthly_avg_temp import plot_monthly_avg_temp
 from src.plots.yearly_avg_temp import plot_yearly_avg_temp
 
+
 # --- Setup ---
 st.set_page_config(page_title="Bellingham Weather Dashboard", layout="wide")
 st.title("🌤️ Bellingham, WA Weather Dashboard")
