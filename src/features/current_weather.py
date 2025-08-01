@@ -43,7 +43,11 @@ def show_current_weather():
         with cols[i]:
             date = datetime.fromisoformat(dates[i]).strftime("%a %b %d")
             icon = weather_icons.get(codes[i], "❓")
+
+            high_f = temps_max[i] * 9 / 5 + 32
+            low_f = temps_min[i] * 9 / 5 + 32
+
             st.markdown(f"#### {icon}")
             st.markdown(f"**{date}**")
-            st.markdown(f"High: **{temps_max[i]:.0f}°F**")
-            st.markdown(f"Low: **{temps_min[i]:.0f}°F**")
+            st.markdown(f"High: **{high_f:.0f}°F**")
+            st.markdown(f"Low: **{low_f:.0f}°F**")
