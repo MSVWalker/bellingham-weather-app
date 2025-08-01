@@ -14,7 +14,7 @@ weather_icons = {
     80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️"
 }
 
-def show_forecast():
+def show_current_weather():
     # Bellingham coordinates
     lat, lon = 48.7544, -122.4780
 
