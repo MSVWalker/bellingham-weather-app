@@ -45,7 +45,7 @@ for i, fig in enumerate(figures):
         st.pyplot(fig)
 
 st.markdown("---")
-show_on_this_day(df)
+plot_on_this_day(df)
 
 st.markdown("---")
 st.caption("Data from Meteostat. Built with DuckDB, pandas, seaborn, matplotlib, and Streamlit.")
