@@ -2,29 +2,39 @@
 
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 from datetime import datetime
 
-def show_on_this_day(df: pd.DataFrame):
+def plot_on_this_day(df: pd.DataFrame):
     """
-    Display historical weather data for the current day (month/day) across all years.
-    Assumes 'time' column is in datetime format and includes temp_high_c, temp_low_c, and precip_mm.
+    Plots the average temperature on this calendar day (month/day) across all available years.
+    Assumes df has 'time' and 'temp_avg_c' columns.
     """
     today = datetime.today()
     month = today.month
     day = today.day
 
-    df_filtered = df[(df['time'].dt.month == month) & (df['time'].dt.day == day)].sort_values("time")
-
-    st.markdown("## 📅 On This Day in Bellingham Weather History")
+    # Filter for today's calendar day across years
+    df_filtered = df[(df['time'].dt.month == month) & (df['time'].dt.day == day)].copy()
 
     if df_filtered.empty:
-        st.info("No historical data available for this day.")
+        st.info("No historical data for today.")
         return
 
-    with st.expander(f"See historical data for {today.strftime('%B %d')}"):
-        for _, row in df_filtered.iterrows():
-            year = row['time'].year
-            high = row.get('temp_high_c', 'N/A')
-            low = row.get('temp_low_c', 'N/A')
-            precip = row.get('precip_mm', 'N/A')
-            st.write(f"**{year}** — High: {high}°C, Low: {low}°C, Precip: {precip} mm")
+    df_filtered['year'] = df_filtered['time'].dt.year
+
+    # Drop nulls if any
+    df_filtered = df_filtered.dropna(subset=['temp_avg_c'])
+
+    # Sort for clean line plot
+    df_filtered = df_filtered.sort_values('year')
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.plot(df_filtered['year'], df_filtered['temp_avg_c'], marker='o', color='orange')
+    ax.set_title(f"📅 Avg Temp on {today.strftime('%b %d')} Over Time", fontsize=14)
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Avg Temp (°C)")
+    ax.grid(True, alpha=0.3)
+
+    st.pyplot(fig)
