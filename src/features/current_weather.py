@@ -17,21 +17,20 @@ def display_day(day, label=None, highlight=False):
     high = day["max"] * 9 / 5 + 32
     low = day["min"] * 9 / 5 + 32
 
-    # Optional label above the card (e.g. "Yesterday")
     label_html = ""
     if label:
         color = "#FFD700" if highlight else "#FFFFFF"
-        label_html = f"<div style='font-size:13px; color:{color}; font-weight: bold;'>{label}</div>"
+        label_html = f"<div style='font-size:13px; color:{color}; font-weight:bold;'>{label}</div>"
 
-    html = f"""
-    <div style='text-align: center; line-height: 1.3; padding: 0 4px;'>
-        {label_html}
-        <div style='font-size:22px;'>{icon}</div>
-        <div style='font-size:12px; font-weight:600;'>{date_str}</div>
-        <div style='font-size:11px;'>High: {high:.0f}°F</div>
-        <div style='font-size:11px;'>Low: {low:.0f}°F</div>
-    </div>
-    """
+    html = (
+        f"<div style='text-align:center; line-height:1.3; padding:0 4px;'>"
+        f"{label_html}"
+        f"<div style='font-size:22px;'>{icon}</div>"
+        f"<div style='font-size:12px; font-weight:600;'>{date_str}</div>"
+        f"<div style='font-size:11px;'>High: {high:.0f}°F</div>"
+        f"<div style='font-size:11px;'>Low: {low:.0f}°F</div>"
+        f"</div>"
+    )
 
     st.markdown(html, unsafe_allow_html=True)
 
