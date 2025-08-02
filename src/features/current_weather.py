@@ -90,9 +90,12 @@ def show_current_weather():
 
     # Render as 1 horizontal row with tight spacing
     html = (
-        "<div style='display: flex; justify-content: space-between; gap: 10px;'>"
-        + "".join(f"<div style='flex: 1;'>{block}</div>" for block in html_blocks)
-        + "</div>"
+            "<div style='display: flex; justify-content: flex-start;'>"
+            + "".join(
+        f"<div style='flex: 0 0 auto; width: 85px; margin-right: 2px;'>{block}</div>"
+        for block in html_blocks
+    )
+            + "</div>"
     )
 
     st.markdown(html, unsafe_allow_html=True)
