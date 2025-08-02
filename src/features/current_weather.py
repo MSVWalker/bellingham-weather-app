@@ -11,28 +11,29 @@ weather_icons = {
     80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️"
 }
 
-def display_day(day, label=None, highlight=False):
+def display_day(day, label=None, highlight=False, is_today=False):
     icon = weather_icons.get(day["code"], "❓")
-    date_str = day["date"].strftime("%a %b %d")
+    date_str = day["date"].strftime("%a %b %d").upper()
     high = day["max"] * 9 / 5 + 32
     low = day["min"] * 9 / 5 + 32
 
-    label_html = ""
+    # Label row
     if label:
-        color = "#FFD700" if highlight else "#FFFFFF"
-        label_html = f"<div style='font-size:13px; color:{color}; font-weight:bold;'>{label}</div>"
+        label_color = "#FFD700" if highlight else "#90EE90" if is_today else "#AAAAAA"
+        label_html = f"<div style='font-size:11px; font-weight:600; color:{label_color};'>{label.upper()}</div>"
+    else:
+        label_html = f"<div style='font-size:11px; font-weight:600; color:#AAAAAA;'>{date_str}</div>"
 
-    html = (
-        f"<div style='text-align:center; line-height:1.3; padding:0 4px;'>"
+    # Card layout
+    return (
+        f"<div style='text-align:center; line-height:1.1; padding:2px;'>"
         f"{label_html}"
-        f"<div style='font-size:22px;'>{icon}</div>"
-        f"<div style='font-size:12px; font-weight:600;'>{date_str}</div>"
-        f"<div style='font-size:11px;'>High: {high:.0f}°F</div>"
-        f"<div style='font-size:11px;'>Low: {low:.0f}°F</div>"
+        f"<div style='font-size:20px; margin-top:1px;'>{icon}</div>"
+        f"<div style='font-size:11px; font-weight:500; margin-top:1px;'>{date_str}</div>"
+        f"<div style='font-size:10px;'>High: {high:.0f}°F</div>"
+        f"<div style='font-size:10px;'>Low: {low:.0f}°F</div>"
         f"</div>"
     )
-
-    st.markdown(html, unsafe_allow_html=True)
 
 def show_current_weather():
     lat, lon = 48.7544, -122.4780
@@ -59,7 +60,7 @@ def show_current_weather():
         st.warning("Not enough forecast data.")
         return
 
-    # Parse yesterday + next 6 days
+    # Yesterday
     yesterday = {
         "date": datetime.fromisoformat(dates[0]),
         "min": temps_min[0],
@@ -67,8 +68,9 @@ def show_current_weather():
         "code": codes[0],
     }
 
+    # Next 6 days
     forecast_days = []
-    for i in range(1, 7):  # next 6 days
+    for i in range(1, 7):
         forecast_days.append({
             "date": datetime.fromisoformat(dates[i]),
             "min": temps_min[i],
@@ -76,13 +78,21 @@ def show_current_weather():
             "code": codes[i],
         })
 
-    # Title and layout
+    # Header
     st.markdown("### 🌤️ Forecast")
 
-    # Compact 1-row layout: Yesterday + 6 days
-    cols = st.columns(7, gap="small")
-    with cols[0]:
-        display_day(yesterday, label="Yesterday", highlight=True)
-    for i in range(6):
-        with cols[i + 1]:
-            display_day(forecast_days[i])
+    # Build HTML blocks
+    html_blocks = [display_day(yesterday, label="Yesterday", highlight=True)]
+    for i, day in enumerate(forecast_days):
+        label = "Today" if i == 0 else None
+        is_today = (i == 0)
+        html_blocks.append(display_day(day, label=label, is_today=is_today))
+
+    # Render as 1 horizontal row with tight spacing
+    html = (
+        "<div style='display: flex; justify-content: space-between; gap: 6px;'>"
+        + "".join(f"<div style='flex: 1;'>{block}</div>" for block in html_blocks)
+        + "</div>"
+    )
+
+    st.markdown(html, unsafe_allow_html=True)
