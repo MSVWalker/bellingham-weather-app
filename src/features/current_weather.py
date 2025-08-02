@@ -22,7 +22,7 @@ def display_day(day, label=None, highlight=False):
         color = "#FFD700" if highlight else "#FFFFFF"
         label_html = f"<div style='font-size:13px; color:{color}; font-weight:bold;'>{label}</div>"
 
-    return (
+    html = (
         f"<div style='text-align:center; line-height:1.3; padding:0 4px;'>"
         f"{label_html}"
         f"<div style='font-size:22px;'>{icon}</div>"
@@ -31,6 +31,8 @@ def display_day(day, label=None, highlight=False):
         f"<div style='font-size:11px;'>Low: {low:.0f}°F</div>"
         f"</div>"
     )
+
+    st.markdown(html, unsafe_allow_html=True)
 
 def show_current_weather():
     lat, lon = 48.7544, -122.4780
