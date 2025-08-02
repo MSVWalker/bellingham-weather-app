@@ -1,5 +1,3 @@
-# src/features/current_weather.py
-
 import streamlit as st
 import requests
 from datetime import datetime
@@ -14,27 +12,30 @@ weather_icons = {
     80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️"
 }
 
-def display_day(day, center=False):
+def display_day(day, label=None, highlight=False):
     icon = weather_icons.get(day["code"], "❓")
     date_str = day["date"].strftime("%a %b %d")
     high = day["max"] * 9 / 5 + 32
     low = day["min"] * 9 / 5 + 32
 
-    if center:
-        st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    style = "color: #FFD700;" if highlight else "color: white;"
+    label_html = f"<div style='font-size:13px; {style} font-weight: bold;'>{label}</div>" if label else ""
 
-    st.markdown(f"#### {icon}")
-    st.markdown(f"**{date_str}**")
-    st.markdown(f"<span style='font-size: 14px;'>High: {high:.0f}°F</span>", unsafe_allow_html=True)
-    st.markdown(f"<span style='font-size: 14px;'>Low: {low:.0f}°F</span>", unsafe_allow_html=True)
-
-    if center:
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style='text-align: center; line-height: 1.2; padding: 2px 0;'>
+            {label_html}
+            <div style='font-size:24px;'>{icon}</div>
+            <div style='font-size:12px; font-weight:bold;'>{date_str}</div>
+            <div style='font-size:11px;'>High: {high:.0f}°F</div>
+            <div style='font-size:11px;'>Low: {low:.0f}°F</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 def show_current_weather():
-    # Bellingham, WA coordinates
     lat, lon = 48.7544, -122.4780
-
     url = (
         "https://api.open-meteo.com/v1/forecast"
         f"?latitude={lat}&longitude={lon}"
@@ -55,10 +56,9 @@ def show_current_weather():
     codes = data["daily"]["weathercode"]
 
     if len(dates) < 7:
-        st.warning("Not enough forecast data returned.")
+        st.warning("Not enough forecast data.")
         return
 
-    # Separate yesterday and next 6 days
     yesterday = {
         "date": datetime.fromisoformat(dates[0]),
         "min": temps_min[0],
@@ -67,7 +67,7 @@ def show_current_weather():
     }
 
     forecast_days = []
-    for i in range(1, 7):  # Next 6 days
+    for i in range(1, 7):
         forecast_days.append({
             "date": datetime.fromisoformat(dates[i]),
             "min": temps_min[i],
@@ -75,13 +75,11 @@ def show_current_weather():
             "code": codes[i],
         })
 
-    # 🌤️ Display
     st.markdown("### 🌤️ Forecast")
-    st.markdown("##### ⬅️ Yesterday")
-    display_day(yesterday, center=True)
 
-    st.markdown("##### 📆 Next 6 Days")
-    cols = st.columns(6, gap="small")
-    for i, day in enumerate(forecast_days):
-        with cols[i]:
-            display_day(day)
+    cols = st.columns(7, gap="small")
+    with cols[0]:
+        display_day(yesterday, label="Yesterday", highlight=True)
+    for i in range(6):
+        with cols[i + 1]:
+            display_day(forecast_days[i])
