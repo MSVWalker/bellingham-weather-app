@@ -18,21 +18,19 @@ def display_day(day, label=None, highlight=False):
     high = day["max"] * 9 / 5 + 32
     low = day["min"] * 9 / 5 + 32
 
-    style = "color: #FFD700;" if highlight else "color: white;"
-    label_html = f"<div style='font-size:13px; {style} font-weight: bold;'>{label}</div>" if label else ""
+    label_html = f"<div style='font-size:13px; color:#FFD700; font-weight: bold;'>{label}</div>" if highlight else f"<div style='font-size:13px; font-weight: bold;'>{label}</div>" if label else ""
 
-    st.markdown(
-        f"""
-        <div style='text-align: center; line-height: 1.2; padding: 2px 0;'>
+    html = f"""
+        <div style='text-align: center; line-height: 1.2; padding: 0px 4px;'>
             {label_html}
-            <div style='font-size:24px;'>{icon}</div>
-            <div style='font-size:12px; font-weight:bold;'>{date_str}</div>
+            <div style='font-size:22px;'>{icon}</div>
+            <div style='font-size:12px; font-weight:600;'>{date_str}</div>
             <div style='font-size:11px;'>High: {high:.0f}°F</div>
             <div style='font-size:11px;'>Low: {low:.0f}°F</div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """
+
+    st.markdown(html, unsafe_allow_html=True)
 
 def show_current_weather():
     lat, lon = 48.7544, -122.4780
