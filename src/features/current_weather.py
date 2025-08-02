@@ -1,4 +1,4 @@
-# src/features/forecast_box.py
+# src/features/current_weather.py
 
 import streamlit as st
 import requests
@@ -40,41 +40,6 @@ def show_current_weather():
         f"?latitude={lat}&longitude={lon}"
         "&daily=temperature_2m_min,temperature_2m_max,weathercode"
         "&timezone=America%2FLos_Angeles"
-    )
-
-    response = requests.get(url)
-    if response.status_code != 200:
-        st.error("⚠️ Failed to fetch forecast data.")
-        return
-
-    data = response.json()
-
-    # Yesterday + Next 3 Days
-    dates = data["daily"]["time"][:4]# src/features/forecast_box.py
-
-import streamlit as st
-import requests
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
-# Emoji map for Open-Meteo's weather codes
-weather_icons = {
-    0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
-    45: "🌫️", 48: "🌫️", 51: "🌦️", 53: "🌦️", 55: "🌦️",
-    56: "🌧️", 57: "🌧️", 61: "🌧️", 63: "🌧️", 65: "🌧️",
-    66: "🌧️", 67: "🌧️", 71: "🌨️", 73: "🌨️", 75: "❄️",
-    80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️"
-}
-
-def show_current_weather():
-    # Bellingham, WA coordinates
-    lat, lon = 48.7544, -122.4780
-
-    url = (
-        "https://api.open-meteo.com/v1/forecast"
-        f"?latitude={lat}&longitude={lon}"
-        "&daily=temperature_2m_min,temperature_2m_max,weathercode"
-        "&timezone=America%2FLos_Angeles"
         "&past_days=1"
     )
 
@@ -89,6 +54,10 @@ def show_current_weather():
     temps_max = data["daily"]["temperature_2m_max"]
     codes = data["daily"]["weathercode"]
 
+    if len(dates) < 7:
+        st.warning("Not enough forecast data returned.")
+        return
+
     # Separate yesterday and next 6 days
     yesterday = {
         "date": datetime.fromisoformat(dates[0]),
@@ -98,7 +67,7 @@ def show_current_weather():
     }
 
     forecast_days = []
-    for i in range(1, 7):
+    for i in range(1, 7):  # Next 6 days
         forecast_days.append({
             "date": datetime.fromisoformat(dates[i]),
             "min": temps_min[i],
