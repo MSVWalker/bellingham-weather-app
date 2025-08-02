@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 # Emoji map for Open-Meteo's weather codes
 weather_icons = {
@@ -18,16 +17,20 @@ def display_day(day, label=None, highlight=False):
     high = day["max"] * 9 / 5 + 32
     low = day["min"] * 9 / 5 + 32
 
-    label_html = f"<div style='font-size:13px; color:#FFD700; font-weight: bold;'>{label}</div>" if highlight else f"<div style='font-size:13px; font-weight: bold;'>{label}</div>" if label else ""
+    # Optional label above the card (e.g. "Yesterday")
+    label_html = ""
+    if label:
+        color = "#FFD700" if highlight else "#FFFFFF"
+        label_html = f"<div style='font-size:13px; color:{color}; font-weight: bold;'>{label}</div>"
 
     html = f"""
-        <div style='text-align: center; line-height: 1.2; padding: 0px 4px;'>
-            {label_html}
-            <div style='font-size:22px;'>{icon}</div>
-            <div style='font-size:12px; font-weight:600;'>{date_str}</div>
-            <div style='font-size:11px;'>High: {high:.0f}°F</div>
-            <div style='font-size:11px;'>Low: {low:.0f}°F</div>
-        </div>
+    <div style='text-align: center; line-height: 1.3; padding: 0 4px;'>
+        {label_html}
+        <div style='font-size:22px;'>{icon}</div>
+        <div style='font-size:12px; font-weight:600;'>{date_str}</div>
+        <div style='font-size:11px;'>High: {high:.0f}°F</div>
+        <div style='font-size:11px;'>Low: {low:.0f}°F</div>
+    </div>
     """
 
     st.markdown(html, unsafe_allow_html=True)
@@ -57,6 +60,7 @@ def show_current_weather():
         st.warning("Not enough forecast data.")
         return
 
+    # Parse yesterday + next 6 days
     yesterday = {
         "date": datetime.fromisoformat(dates[0]),
         "min": temps_min[0],
@@ -65,7 +69,7 @@ def show_current_weather():
     }
 
     forecast_days = []
-    for i in range(1, 7):
+    for i in range(1, 7):  # next 6 days
         forecast_days.append({
             "date": datetime.fromisoformat(dates[i]),
             "min": temps_min[i],
@@ -73,8 +77,10 @@ def show_current_weather():
             "code": codes[i],
         })
 
+    # Title and layout
     st.markdown("### 🌤️ Forecast")
 
+    # Compact 1-row layout: Yesterday + 6 days
     cols = st.columns(7, gap="small")
     with cols[0]:
         display_day(yesterday, label="Yesterday", highlight=True)
